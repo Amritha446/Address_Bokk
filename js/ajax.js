@@ -93,6 +93,7 @@ function editOne(event){
         }
     })
 }
+
 function deletePage(event){
     if(confirm("Confirm delete?")){
         $.ajax({

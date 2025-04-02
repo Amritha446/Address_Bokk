@@ -343,11 +343,10 @@
                 userId = <cfqueryparam value="#arguments.contactId#" cfsqltype="cf_sql_integer">
         </cfquery>
         <cfquery name = "local.deleteRoles">
-            delete 
-            from 
-            contact_role 
+            delete from 
+                contact_role 
             where 
-            contact_id = <cfqueryparam value="#arguments.contactId#" cfsqltype="cf_sql_integer">;
+                contact_id = <cfqueryparam value="#arguments.contactId#" cfsqltype="cf_sql_integer">;
         </cfquery>
         <cfloop list="#arguments.multiSel#" item="item"> 
             <cfquery name = "local.selectedOptionInsertion">
@@ -368,21 +367,10 @@
     <cffunction  name="delContact" access="remote" returnType="void">
         <cfargument name = "contactId">
         <cfset dateJoined = "#Now()#">
-        <!--- <cfquery name = "local.deleteRoles">
-            delete 
-            from 
-            contact_role 
-            where 
-            contact_id = <cfqueryparam value="#arguments.contactId#" cfsqltype="cf_sql_integer">;
-        </cfquery>  
-        <cfquery name="local.delete">
-            DELETE 
-            FROM contact 
-            WHERE userId = <cfqueryparam value="#arguments.contactId#" cfsqltype="cf_sql_integer">
-        </cfquery>--->
+        
         <cfquery name="local.deleteUpdation">
             UPDATE 
-            contact
+                contact
             SET
                 IsActive = 0,
                 deletedBy = <cfqueryparam value="#session.userId#" cfsqltype="cf_sql_varchar">,

@@ -35,7 +35,7 @@
             </div>
             <div class="rightSection mb-5">
                 <p class="heading fs-3 mt-2">SIGN UP</p>
-<cfdump  var="#rc#">
+
                 <!-- Display Error Message Only if Form was Submitted -->
                 <form method="post" enctype="multipart/form-data">
                     <div class="input d-flex flex-column">

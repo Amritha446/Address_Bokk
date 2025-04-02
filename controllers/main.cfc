@@ -1,5 +1,9 @@
 component accessors=true {
     property addressBookService; // Injecting the model layer
+    function init(fw) {
+        variables.fw=arguments.fw;
+        return this;
+    }
     function default( struct rc ) {
         param name="rc.userName" default="";
         param name="rc.userPassword1" default="";
@@ -8,7 +12,7 @@ component accessors=true {
         if ( structKeyExists(rc, "userName") && structKeyExists(rc, "userPassword1") ) {
             var authResult = variables.addressBookService.authenticateUser(rc.userName, rc.userPassword1);
 
-            if (authResult.authenticated) {
+            if (authResult.authenticated) { 
                 session.isAuthenticated = true;
                 session.userId = authResult.userData.userId;
                 session.profile = authResult.userData.profile;
@@ -53,12 +57,9 @@ component accessors=true {
         writeOutput("success");
     }
 
-    function createContact( struct rc ) { 
-        
-    }
-
     function home(struct rc) {
-        rc.roles = variables.addressBookService.getRoles(); 
+        
+        param name="rc.contactId" default="";
         param name="rc.title" default="";
         param name="rc.firstName" default="";
         param name="rc.lastName" default="";
@@ -75,9 +76,7 @@ component accessors=true {
         param name="rc.phone" default="";
         param name="rc.multiSel" default="";
 
-        // If form is submitted with contact information
-        if ( structKeyExists(rc, "title") && structKeyExists(rc, "firstName") ) {
-            // Call the model layer to add the contact
+        if ( structKeyExists(rc, "title") && structKeyExists(rc, "firstName") && rc.contactId == "") {
             var result = variables.addressBookService.createContact(
                 rc.title,
                 rc.firstName,
@@ -96,27 +95,92 @@ component accessors=true {
                 rc.multiSel
             );
 
-            if (result == "") {
+            /* if (result == "") {
                 
-            } else {
+            } else { */
+                /* location("?action=main.home"); */
                 rc.error = result;
                 
-            }
-        }/*  else {
-            setView("main.home");
-        } */
-        /* if (rc.roles.recordCount EQ 0) {
-            rc.roles = queryNew("role_id, role_name", "integer,varchar");
-        } */
+            /* } */
+        } else{
+            var result = variables.addressBookService.editContact(
+            contactId = rc.contactId,
+            title = rc.title,
+            firstName = rc.firstName,
+            lastName = rc.lastName,
+            gender = rc.gender,
+            dob = rc.dob,
+            img = rc.img ?: "", 
+            address = rc.address,
+            street = rc.street,
+            pin = rc.pin,
+            district = rc.district,
+            state = rc.state,
+            country = rc.country,
+            mail = rc.mail,
+            phone = rc.phone,
+            multiSel = rc.multiSel
+            );
+            
+            rc.error = result;
+            /* location("?action=main.home"); */
+        }
+        rc.contactList = variables.addressBookService.viewContact();
+        rc.roles = variables.addressBookService.getRoles(); 
+        
+        return rc.roles;
     }
 
-    function viewContact( struct rc ) {
+    /* function viewContact( struct rc ) {
         rc.contactList = variables.addressBookService.viewContact(rc);
         if (!structKeyExists(rc, "contactList")) {
             rc.contactList = [];
         }
         setView("main.viewContact");
+    } */
+
+    /* function viewContact(struct rc) {
+        rc.contactList = variables.addressBookService.getActiveContacts();
+        if (!structKeyExists(rc, "contactList")) {
+            rc.contactList = [];
+        }
+    } */
+
+    function viewOneContact(struct rc) {
+        rc.contactDetails = variables.addressBookService.getOneContactById(rc.contactId);
+            variables.fw.renderData( "json", rc.contactDetails );
     }
+
+    function deleteContact( struct rc ) {
+        if (structKeyExists(rc, "contactId")) {
+            rc.contactDetails = variables.addressBookService.deleteContact(rc.contactId);
+            variables.fw.renderData( "json" );
+        }
+    }
+
+    function logout( struct rc ) {
+        rc.logOut = variables.addressBookService.logout();
+        variables.fw.renderData( "json", { "status": "loggedOut" } );
+    }
+
+    function handleRedirect(){
+        var excludePages = ["main.default","main.signup"];
+        var requestedPage = structKeyExists(url, "action") ? url.action : "main.default";
+       /*  var item = structKeyExists(url, "item") ? url.item : "default";
+        var requestedPage = section & "." & item; */
+
+        // Redirect to login if user is not authenticated
+        if (!structKeyExists(session, "isAuthenticated") && !arrayContains(excludePages, requestedPage)) {
+            if (requestedPage != "main.default") {
+                location(url="index.cfm?action=main.default", addtoken=false);
+            }
+        }
+        /* else if (requestedPage != "main.default"){
+            location(url="index.cfm?action=main.default", addtoken=false);
+        } */
+        return true;
+    }
+
 }
 
 

@@ -15,19 +15,7 @@ component extends="framework.one" {
         session.isAuthenticated = false;
     }
 
-    /* function onRequestStart() {
-        var excludePages = ["main.default"];
-        var section = structKeyExists(url, "section") ? url.section : "main";
-        var item = structKeyExists(url, "item") ? url.item : "default";
-        var requestedPage = section & "." & item;
-
-        // Redirect to login if user is not authenticated
-        if (!session.isAuthenticated && !arrayContains(excludePages, requestedPage)) {
-            if (requestedPage != "main.default") {
-                location(url="index.cfm?section=main&item=default", addtoken=false);
-            }
-        }
-
-        return true;
-    }  */
+    function setupRequest(){
+        controller("main.handleRedirect");
+    }
 }
